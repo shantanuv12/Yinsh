@@ -92,7 +92,10 @@ class Game:
 
 	def get_current_player(self):
 		return self.driver.execute_script('return current_player;')
-
+	
+	def get_board(self):
+		return self.driver.execute_script('return positions;')
+	
 	### Score Class
 	# 3-0: 10
 	# 3-1: 9

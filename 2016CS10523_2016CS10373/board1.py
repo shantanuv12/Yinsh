@@ -1,6 +1,6 @@
 import sys
 import time
-
+import copy
 
 # 1 - for marker
 # 2 - for rings
@@ -141,6 +141,7 @@ def execute_sequence(board, moves, id):
     return board
 
 def execute_move(board, cmd, id):
+    board = copy.deepcopy(board)
     moves = cmd.split()
     if len(moves) > 3:
         return execute_sequence(board,moves,id)
@@ -352,10 +353,10 @@ def flippedUtil(board,marker,ring,dir,i,j):
     row = i + dir[1]
     col = j + dir[0]
     marker_count = 0
-    while (row < 19 and row > -1 and col < 11 and col > -1 and board[col][row] == 0):
+    while row < 19 and row > -1 and col < 11 and col > -1 and board[col][row] == 0:
         row += dir[1]
         col += dir[0]
-    while (row < 19 and row > -1 and col < 11 and col > -1 and board[col][row] != -100):
+    while row < 19 and row > -1 and col < 11 and col > -1 and board[col][row] != -100:
         if(board[col][row] == marker):
             marker_count += 1
         elif board[col][row] == 0:
@@ -410,7 +411,8 @@ def mobilityScore(board,ring):
                     mobility_score += mobilityUtil(board,ring,dirs[k],i,j)
     return mobility_score
 
-def evaluationFunction(boards):
+def evaluationFunction(board, current_player):
+    #board = copy.deepcopy(board)
     num_w_marker = countMarkers(board,1)
     num_b_marker = countMarkers(board,-1)
 
@@ -461,13 +463,15 @@ def validPointsInARow(board,point,dir):
     return lis
 
 def validMovesList(board,point):
+    #board = copy.deepcopy(board)
     lis = []
     for i,dir in enumerate(dirs):
         lis.extend(validPointsInARow(board,point,dir))
     return lis
 
-def checkRuns(board,current_player):
-    marker = 1 if(current_player == 0) else -1
+def checkRuns(board,pid):
+    board = copy.deepcopy(board)
+    marker = 1 if pid == 0 else -1
     lis = []
     for i in range(11):
         for j in range(11):
@@ -520,34 +524,3 @@ if __name__ == "__main__":
         for j in i:
             if j != 'null':
                 board[j[0]][j[1]] = 0
-
-    '''board = execute_move(board, "P 5 9",0)
-    #board = execute_move(board, "P 2 2",1)
-    board = setMarker(board,5, 7, 1)
-    board = setMarker(board, 5, 5, -1)
-    board = setMarker(board, 5, 3, 1)
-    board = setMarker(board, 5, 1, 1)
-    #board = setMarker(board, 5, 11, 1)
-    board = setMarker(board, 5, 13, -2)
-    board = setMarker(board, 5 , 11, 1)
-
-    #print board[5][9]
-    #print board[5][11]
-    #print len(board)
-    #print len(board[0])
-    #board = flipMarkers(board, 5,9 ,5 ,3)
-    board = execute_move(board,"S 5 9 M 8 12",0)
-    #print evaluationFunction(board, 1)
-    #print board[5][9]
-    #print board[5][7]
-    #print board[5][5]
-    #print board[5][3]
-    #print board[5][1]
-    #print validPointsInARow(board,[5, 17],[0,2])
-    print checkRuns(board,0)
-    '''
-    board = [[-100, -100, -100, -100, -100, -100, 0, -100, 0, -100, 0, -100, 0, -100, -100, -100, -100, -100, -100], [-100, -100, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, -100, -100], [-100, -100, 0, -100, 1, -100, -1, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, -100], [-100, 0, -100, 1, -100, 0, -100, 0, -100, -2, -100, 0, -100, 0, -100, 0, -100, 0, -100], [0, -100, 1, -100, 0, -100, 0, -100, -1, -100, 0, -100, 0, -100, 0, -100, 0, -100, -2], [-100, 1, -100, 0, -100, -2, -100, -1, -100, -1, -100, -1, -100, 0, -100, 0, -100, 0, -100], [1, -100, 2, -100, 0, -100, 1, -100, 0, -100, -1, -100, 0, -100, 0, -100, 0, -100, -2], [-100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100], [-100, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, -100], [-100, -100, -100, 2, -100, 0, -100, 2, -100, 0, -100, 0, -100, 0, -100, -2, -100, -100, -100], [-100, -100, -100, -100, -100, -100, 2, -100, 2, -100, 0, -100, 0, -100, -100, -100, -100, -100, -100]]
-
-    board2 = [[-100, -100, -100, -100, -100, -100, 0, -100, 0, -100, 0, -100, 0, -100, -100, -100, -100, -100, -100], [-100, -100, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, -100, -100], [-100, -100, 0, -100, 1, -100, -1, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, -100], [-100, 0, -100, 1, -100, 0, -100, 0, -100, -2, -100, 0, -100, 0, -100, 0, -100, 0, -100], [0, -100, 1, -100, 0, -100, 0, -100, -1, -100, 0, -100, 0, -100, 0, -100, 0, -100, -2], [-100, 1, -100, 0, -100, -2, -100, -1, -100, -1, -100, -1, -100, 0, -100, 0, -100, 0, -100], [1, -100, 0, -100, 2, -100, 1, -100, 0, -100, -1, -100, 0, -100, 0, -100, 0, -100, -2], [-100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100], [-100, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, -100], [-100, -100, -100, 2, -100, 0, -100, 2, -100, 0, -100, 0, -100, 0, -100, -2, -100, -100, -100], [-100, -100, -100, -100, -100, -100, 2, -100, 2, -100, 0, -100, 0, -100, -100, -100, -100, -100, -100]]
-    print checkRuns(board,0)
-    print checkRuns(board2,0)

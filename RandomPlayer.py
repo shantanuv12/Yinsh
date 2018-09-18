@@ -118,7 +118,7 @@ class RandomPlayer:
 					if state != 3:
 						break
 			self.play_move_seq(move_seq)
-
+			
 			## Execute Other Player Move Sequence
 			move = sys.stdin.readline().strip()
 			self.game.execute_move(move)
