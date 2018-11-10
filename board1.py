@@ -19,6 +19,7 @@ blackRings = 5
 
 
 def setMarker(board,x,y,marker):
+    board = copy.deepcopy(board)
     board[x][y] = marker
     return board
 
@@ -28,10 +29,12 @@ def isValidPoint(board,row,col):
     return True
 
 def removeMarker(board,x,y):
+    board = copy.deepcopy(board)
     board[x][y] = 0
     return board
 
 def flipMarkers(board,x_init, y_init,x_fin,y_fin):
+    board = copy.deepcopy(board)
     ind = 0
     for i,dir in enumerate(dirs):
         if(dir[0] == 0):
@@ -56,6 +59,7 @@ def flipMarkers(board,x_init, y_init,x_fin,y_fin):
     return board
 
 def moveRing(board, x_init, y_init,x_fin, y_fin):
+    board = copy.deepcopy(board)
     ring = board[x_init][y_init]
     marker = 1 if ring == 2 else -1
     board[x_init][y_init] = marker
@@ -65,6 +69,7 @@ def moveRing(board, x_init, y_init,x_fin, y_fin):
     return board
 
 def placeRingAt(board, x, y, id):
+    board = copy.deepcopy(board)
     global whiteRingsOnBoard
     global blackRingsOnBoard
     if(id == 0):
@@ -75,6 +80,7 @@ def placeRingAt(board, x, y, id):
         return setMarker(board,x,y,-2)
 
 def removeRing(board, x, y, id):
+    board = copy.deepcopy(board)
     global whiteRings
     global blackRings
     if(id == 0):
@@ -148,12 +154,15 @@ def execute_move(board, cmd, id):
     move_type = moves[0]
     x = int(moves[1])
     y = int(moves[2])
-
+    print "In execute Move"
+    print 'x ' + str(x)
+    print 'y ' + str(y)
     success = 1
     string_invalid =  False
 
     global sel_ring
     if(move_type == 'P'):
+        print 'Move is P'
         return placeRingAt(board, x, y, id)
     elif (move_type == 'S'): # Select a ring
         return selectRing(board, x ,y)
@@ -524,3 +533,8 @@ if __name__ == "__main__":
         for j in i:
             if j != 'null':
                 board[j[0]][j[1]] = 0
+
+    board = placeRingAt(board,5,9,1)
+    board1 = execute_move(board, 'P 1 0', 1)
+    print board[5][9]
+    print board1[5][7]

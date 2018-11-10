@@ -1,4 +1,5 @@
+
 #!/bin/bash
 
 ## Compile our two program files
-g++ bot.cpp -o bot
+g++ -std=c++11 -Ofast -march=native -o code main.cpp
