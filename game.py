@@ -369,15 +369,26 @@ class Game:
 
 		return max_len, wrong_changes, correct_changes
 
+	def get_score_including_security_of_markers_util(self, i, j, marker_val, ring_val, a_, b_, rows, positions):
+		a = a_
+		b = b_
+		c = 0
+		mult = 1
+		score = 0
+		while (i+a >= 0 and i+a < rows and j+b >= 0 and j+b < rows):
+			if (positions[i+a][j+b]['piece'] == marker_val):
+				score += mult
+			elif (positions[i+a][j+b]['piece'] == ring_val):
+				score += 0.5 * mult
+			a += a_
+			b += b_
+			c += 1
+			if (c <= 4):
+				mult = mult * 3
+		return score
 
-	def score_by_length_of_rows_formed_util(len):
-		if(len <= 5):
-			return 0.5 * (pow(3,len) - 1)
-		else:
-			num = len - 5
-			return 121.0 + 81.0 * num
 
-	def get_score_based_on_lenght_of_rows_formed(self, positions, rows, rings, marker_val, ring_val, xring, yring, destx, desty, asign, bsign, m):
+	def get_score_including_security_of_markers(self, positions, rows, rings, marker_val, ring_val, xring, yring, destx, desty, asign, bsign, m):
 		score = 0
 		a = 0
 		b = 0
@@ -389,14 +400,14 @@ class Game:
 			j = int(yring+b)
 
 			if (positions[i][j]['piece'] == marker_val or positions[i][j]['piece'] == ring_val):
-				len1 = self.get_len_around(i, j, marker_val, ring_val, 1, 1, rows, positions)
-				len2 = self.get_len_around(i, j, marker_val, ring_val, -1, -1, rows, positions)
-				len3 = self.get_len_around(i, j, marker_val, ring_val, 0, 1, rows, positions)
-				len4 = self.get_len_around(i, j, marker_val, ring_val, 0, -1, rows, positions)
-				len5 = self.get_len_around(i, j, marker_val, ring_val, 1, 0, rows, positions)
-				len6 = self.get_len_around(i, j, marker_val, ring_val, -1, 0, rows, positions)
-				max_len = max(max_len, len1+len2+1, len3+len4+1, len5+len6+1)
-				correct_changes += 1
+				len1 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, 1, 1, rows, positions)
+				len2 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, -1, -1, rows, positions)
+				len3 = self.get_score_including_security_of_markers(i, j, marker_val, ring_val, 0, 1, rows, positions)
+				len4 = self.get_score_including_security_of_markers(i, j, marker_val, ring_val, 0, -1, rows, positions)
+				len5 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, 1, 0, rows, positions)
+				len6 = self.get_score_including_security_of_markers(i, j, marker_val, ring_val, -1, 0, rows, positions)
+				max_len = len1 + len2 + len3 + len4 + len5 + len6
+				score += max_len
 				# print('Position %s %d'%(str(m[(i, j)]), positions[i][j]['piece']), file=sys.stderr)
 				# print('Lengths created %d %d %d %d %d %d %d'%(len1, len2, len3, len4, len5, len6, max_len), file=sys.stderr)
 			else :
@@ -411,7 +422,6 @@ class Game:
 			b += bsign
 
 		return score
-
 
 	def get_best_row_state(self, move, current_player, m):
 		marker_val = 1 if (current_player == 0) else -1
