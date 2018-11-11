@@ -301,19 +301,18 @@ class Game:
 		return positions
 
 
-	def markerScore(self, i, j, marker_val, a_, b_, rows, positions):
+	def markerScore(self, marker_val, rows, positions):
 		score_AI = 0
 		score_Opp = 0
-		a = a_
-		b = b_
-		while( i+a >= 0 and i+a < rows and j+b >= 0 and j+b < rows ):
-			if(positions[i+a][j+b]['piece'] == marker_val):
-				score_AI += 1
-			elif(positions[i+a][j+b]['piece'] == -1 * marker_val):
-				score_Opp += 1
+		for i in range(rows):
+			for j in range(rows):
+				if(positions[i][j]['piece'] == marker_val):
+					score_AI += 1
+				elif(positions[i][j]['piece'] == -1 * marker_val):
+					score_Opp += 1
 		return score_AI - score_Opp
 
-	def ringScore(self, ring_val, positions, rows):
+	def ringScore(self, ring_val, rows, positions):
 		num = 0
 		for i in range(rows):
 			for j in range(rows):
@@ -402,10 +401,10 @@ class Game:
 			if (positions[i][j]['piece'] == marker_val or positions[i][j]['piece'] == ring_val):
 				len1 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, 1, 1, rows, positions)
 				len2 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, -1, -1, rows, positions)
-				len3 = self.get_score_including_security_of_markers(i, j, marker_val, ring_val, 0, 1, rows, positions)
-				len4 = self.get_score_including_security_of_markers(i, j, marker_val, ring_val, 0, -1, rows, positions)
+				len3 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, 0, 1, rows, positions)
+				len4 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, 0, -1, rows, positions)
 				len5 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, 1, 0, rows, positions)
-				len6 = self.get_score_including_security_of_markers(i, j, marker_val, ring_val, -1, 0, rows, positions)
+				len6 = self.get_score_including_security_of_markers_util(i, j, marker_val, ring_val, -1, 0, rows, positions)
 				max_len = len1 + len2 + len3 + len4 + len5 + len6
 				score += max_len
 				# print('Position %s %d'%(str(m[(i, j)]), positions[i][j]['piece']), file=sys.stderr)
@@ -427,6 +426,10 @@ class Game:
 		marker_val = 1 if (current_player == 0) else -1
 		ring_val = 2 * marker_val
 
+		curr_marker = -1 * marker_val
+		curr_ring = 2 * curr_marker
+
+
 		rows = self.rows
 		rings = self.rings
 		ringx, ringy, destx, desty = move
@@ -441,15 +444,19 @@ class Game:
 
 		# print('Move %s %s'%(str(m[(ringx, ringy)]), str(m[(destx, desty)])), file=sys.stderr)
 		# print('Max len : %d, max len b : %d'%(max_len, max_len_b), file=sys.stderr)
+		fin_score = self.get_score_including_security_of_markers(positions_after, rows, rings, curr_marker, curr_ring, ringx, ringy, destx, desty, asign, bsign, m)
 
 		if(max_len < max_len_b):
 			max_len = -1
 
-		return max_len, right-wrong
+		return max_len, right-wrong, fin_score
 
 	def get_opponent_worst_state(self, move, current_player, m):
 		opp_marker = -1 if (current_player == 0) else 1
 		opp_ring = 2 * opp_marker
+
+		curr_marker = -1 * opp_marker
+		curr_ring = 2 * curr_marker
 
 		rows = self.rows
 		rings = self.rings
@@ -462,6 +469,11 @@ class Game:
 		max_len_b, w_b, r_b = self.get_max_length_created(positions, rows, rings, opp_marker, opp_ring, ringx, ringy, destx, desty, asign, bsign, m)
 
 		positions_after = self.updatePositions(copy.deepcopy(positions), move, current_player)
+		#####
+			# Adding one more layer
+
+
+		####
 		# print('postions after', file=sys.stderr)
 		max_len, wrong, right = self.get_max_length_created(positions_after, rows, rings, opp_marker, opp_ring, ringx, ringy, destx, desty, asign, bsign, m)
 
@@ -471,7 +483,9 @@ class Game:
 		if(max_len > max_len_b):
 			max_len = rings * 2
 
-		return max_len-max_len_b, max_len_b, wrong-right # changes to our markers are good
+		fin_score = self.get_score_including_security_of_markers(positions_after, rows, rings, curr_marker, curr_ring, ringx, ringy, destx, desty, asign, bsign, m)
+
+		return max_len-max_len_b, max_len_b, wrong-right, fin_score # changes to our markers are good
 
 
 

@@ -45,10 +45,13 @@ class RandomPlayer:
             position+=1
         return '{type} {hex} {pos}'.format(type=movetype, hex=hexagon, pos=position), hexagon, position
 
-    def aggression(self, move, player, movesMap) :
+    def defense(self, move, player, movesMap) :
+        max_len, max_len_b, num_markers, fin_score = self.game.get_opponent_worst_state(move, player, movesMap)
+        return (max_len*1.0 - num_markers*0.001 - fin_score*0.01, max_len_b)
+
+    def aggression(self, move, player, moverMap):
         max_len, num_markers, fin_score = self.game.get_best_row_state(move, player, movesMap)
-        # print('Move: %s Max Len: %d, Num Markers: %d'%(move, max_len, num_markers), file=sys.stderr)
-        return (max_len*1.0 + num_markers*0.001)
+        return (max_len*1.0 + num_markers*0.001 + fin_score*0.01)
 
     def selectAndMoveRing(self):
         selectType = 'S'
@@ -60,15 +63,15 @@ class RandomPlayer:
 
         movesMap = self.game.boardToHexMap(self.n)
         validMoves = self.game.getAllValidMoves(self.RingPos)
-        maxAggress = -1
+        minDefense = 10000
+        max_aggression = -10000
         for move in validMoves:
-            move_aggression = self.aggression(move, self.player, movesMap)
-            if (maxAggress < move_aggression) : # and the move has a higher aggression than any previous valid moves
+            move_defense, opp_len = self.defense(move, self.player, movesMap)
+            if (minDefense > move_defense) : # and the move has a higher defense than any previous valid moves
                 src_ring = movesMap[(move[0], move[1])]
                 dst_ring = movesMap[(move[2], move[3])]
-                # print("Moves %d %d %d %d"%(move[0], move[1], move[2], move[3]), file=sys.stderr)
-                # print("Source Ring: "+str(src_ring), file=sys.stderr)
-                maxAggress = move_aggression # update move and aggression score
+                minDefense = move_defense # update move and defense score
+                
 
         for move_ring_num in self.RingPos:
             if(src_ring == self.RingPos[move_ring_num]):

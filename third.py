@@ -1,4 +1,4 @@
-from __future__ import print_function 
+from __future__ import print_function
 
 from game import Game
 import math
@@ -48,11 +48,11 @@ class RandomPlayer:
         return '{type} {hex} {pos}'.format(type=movetype, hex=hexagon, pos=position), hexagon, position
 
     def aggression(self, move, player, movesMap) :
-        max_len, num_markers = self.game.get_best_row_state(move, player, movesMap)
+        max_len, num_markers = self.game.get_best_row_state(move, player, movesMap, self.ringPos)
         return (max_len*1.0 + num_markers*0.001)
 
     def defense(self, move, player, movesMap) :
-        max_len, max_len_b, num_markers = self.game.get_opponent_worst_state(move, player, movesMap)
+        max_len, max_len_b, num_markers = self.game.get_opponent_worst_state(move, player, movesMap, self.ringPos)
         return (max_len*1.0 - num_markers*0.001, max_len_b)
 
     def selectAndMoveRing(self):
@@ -89,7 +89,7 @@ class RandomPlayer:
                 break
         # print('Ring Pos '+str(self.RingPos[move_ring_num]), file=sys.stderr)
 
-        return '{type} {hex} {pos}'.format(type=selectType, hex=src_ring[0], pos=src_ring[1]), move_ring_num, '{type} {hex} {pos}'.format(type=moveType, hex=dst_ring[0], pos=dst_ring[1]), dst_ring[0], dst_ring[1] 
+        return '{type} {hex} {pos}'.format(type=selectType, hex=src_ring[0], pos=src_ring[1]), move_ring_num, '{type} {hex} {pos}'.format(type=moveType, hex=dst_ring[0], pos=dst_ring[1]), dst_ring[0], dst_ring[1]
 
 
 
@@ -175,7 +175,7 @@ class RandomPlayer:
                     if state != 3:
                         break
             self.play_move_seq(move_seq)
-            
+
             ## Execute Other Player Move Sequence
             move = sys.stdin.readline().strip()
             self.game.execute_move(move)
